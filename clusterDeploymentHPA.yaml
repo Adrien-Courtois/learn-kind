@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-v2-deployment
+  labels:
+    app: app-v2-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-v2-deploy
+  template:
+    metadata:
+      labels:
+        app: app-v2-deploy
+    spec:
+      containers:
+        - name: test-v2-app
+          image: hashicorp/http-echo:0.2.3
+          args:
+          - "-text=Hello World! This is a test 2 Kubernetes with kind App"
+          resources:
+            limits:
+              cpu: 200m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 500Mi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app-v2-service
+spec:
+  selector:
+    app: app-v2-deploy
+  ports:
+  # Default port used by the image
+  - port: 5678
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-v2-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/appv2"
+        backend:
+          service:
+            name: app-v2-service
+            port:
+              number: 5678
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-v2-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app-v2-deployment
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 10
+---
