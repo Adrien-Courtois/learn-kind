@@ -1,5 +1,11 @@
 # learn-kind
 
+## Sommaire
+- 01 - Création d'un cluster
+- 02 - Création d'un service et d'une ingress
+- 03 - Création d'un deployment
+- 04 - Création d'un HPA
+
 ## Kind
 
 ### Installation kind
